@@ -7,6 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const botonesEnunciado = document.querySelectorAll(".btn-enunciado");
     const themeToggle = document.getElementById("themeToggle");
     const consultas = document.querySelectorAll(".consulta");
+        
+        let stockPochoclos = 20;
     const btnPorque = document.getElementById("btnPorque");
     const seccionPorque = document.getElementById("porque-elegirnos");
     function highlightSQL() {
@@ -29,25 +31,25 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-   // LISTENERS ACTUALIZADOS
+ 
     btnNosotros.addEventListener("click", () => {
         seccionNosotros.classList.remove("hidden");
         seccionConsultas.classList.add("hidden");
-        seccionPorque.classList.add("hidden"); // AÑADIDO
+        seccionPorque.classList.add("hidden"); 
     });
 
     btnConsultas.addEventListener("click", () => {
         seccionNosotros.classList.add("hidden");
         seccionConsultas.classList.remove("hidden");
-        seccionPorque.classList.add("hidden"); // AÑADIDO
+        seccionPorque.classList.add("hidden"); 
         window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
-    // NUEVO LISTENER
+
     btnPorque.addEventListener("click", () => {
         seccionNosotros.classList.add("hidden");
         seccionConsultas.classList.add("hidden");
-        seccionPorque.classList.remove("hidden"); // AÑADIDO
+        seccionPorque.classList.remove("hidden"); 
         window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
@@ -72,6 +74,65 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 50);
         });
     });
+
+      
+        const stockDisplay = document.getElementById('stock-pochoclos');
+        const cantidadInput = document.getElementById('cantidad-pochoclos');
+        const addBtn = document.getElementById('add-to-invoice');
+        const finalizeBtn = document.getElementById('finalize-invoice');
+        const invoiceList = document.getElementById('invoice-list');
+        const errorBox = document.getElementById('error-box');
+
+        let pendingPochoclos = 0;
+
+        function updateStockDisplay() {
+            if (!stockDisplay) return;
+            stockDisplay.textContent = stockPochoclos + (pendingPochoclos > 0 ? ` (Pendiente: ${pendingPochoclos})` : '');
+        }
+
+        function showErrorMessage(msg) {
+            if (!errorBox) return;
+            errorBox.textContent = `Error en la base de datos. ERRORMESSAGE (${msg})`;
+            errorBox.classList.remove('hidden');
+            setTimeout(() => {
+                errorBox.classList.add('hidden');
+            }, 5000);
+        }
+
+        if (updateStockDisplay) updateStockDisplay();
+
+        if (addBtn) {
+            addBtn.addEventListener('click', () => {
+                const qty = parseInt(cantidadInput.value, 10) || 0;
+                if (qty <= 0) return;
+         
+                pendingPochoclos += qty;
+                const li = document.createElement('li');
+                li.textContent = `Pochoclos x ${qty}`;
+                invoiceList.appendChild(li);
+                updateStockDisplay();
+            });
+        }
+
+        if (finalizeBtn) {
+            finalizeBtn.addEventListener('click', () => {
+                if (pendingPochoclos <= 0) {
+            
+                    invoiceList.innerHTML = '';
+                    return;
+                }
+                if (pendingPochoclos > stockPochoclos) {
+                    const raiserrorMsg = 'ERROR DE INVENTARIO: Stock insuficiente para completar la transacción. Venta revertida.';
+                    showErrorMessage(raiserrorMsg);
+                    return;
+                }
+         
+                stockPochoclos -= pendingPochoclos;
+                pendingPochoclos = 0;
+                updateStockDisplay();
+                invoiceList.innerHTML = '';
+            });
+        }
 
 
     themeToggle.addEventListener("click", () => {
