@@ -6,16 +6,18 @@
     <title>Cine DB - Presentación</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 <body>
-    <header>
-        <div class="logo"> Cine DB</div>
+    <header>  
+       <div class="logo"><i class="bi bi-camera-reels" style="vertical-align: middle; margin-right: 8px;"></i>Cine DB</div>
         <nav>
             <ul>
+                
                 <li><a href="#" id="btnNosotros">Sobre Nosotros</a></li>
                 <li><a href="#" id="btnConsultas">Consultas</a></li>
+                <li><a href="#" id="btnPorque">¿Por qué elegirnos?</a></li>
             </ul>
         </nav>
     </header>
@@ -25,7 +27,7 @@
         <div class="cards">
             <div class="card"><h3>Cobos Robert , Lorenzo </h3><p>Legajo: 421527 </p></div>
             <div class="card"><h3>Cantero, Ignacio Javier</h3><p>Legajo: 421797 </p></div>
-            <div class="card"><h3>Bonfanti, Galo</h3><p>Legajo: 421253 </p></div>
+            <div class="card"><h3>Bonfanti, Galo </h3><br><p>Legajo: 421253 </p></div>
             <div class="card"><h3>Aris, Federico Nicolas</h3><p>Legajo: 421442 </p></div>
             <div class="card"><h3>Iriarte, Franco Nicolas </h3><p>Legajo: 421708</p></div>
         </div>
@@ -45,7 +47,7 @@ espectadores por función; la recaudación total por cine y por película; y la 
 espectadores por película.
  Consulte la vista anterior para mostrar el cine, la película y la recaudación total solo de
 aquellas películas cuya recaudación supere el promedio general de recaudación.</p>
-<br> </br>
+            <br> </br>
             <pre>CREATE VIEW vista_estadisticas_cine AS
 SELECT 
     c.Nombre_Cine, 
@@ -204,10 +206,78 @@ EXEC Pa_Pel_Gen_Form 'romance', '2D';</pre>
             <p class="enunciado hidden">Nos muestra la recaudación por película, facilitando el análisis económico y la identificación de títulos más rentables.</p>
           <br> </br>
   <pre>SELECT 
-    Pelicula,
-    SUM(Recaudacion) as RecaudacionTotal
-FROM Ventas 
-GROUP BY Pelicula;</pre>
+    c.Nombre_Cine AS [Cine],
+    ci.Nombre_Ciudad AS [Ubicacion],
+
+    (
+        SELECT 
+        SUM(df.precio_total) + SUM(dfp.cantidad * dfp.Precio_Unitario)
+		-- El cine de las rosas no tiene recaudacion de productos, por lo tanto, 5500 + null = null, lo arreglamos despues con algun insert 
+        FROM factura f
+        JOIN detalle_factura df ON f.id_Factura = df.id_Factura
+        JOIN boletos b ON df.id_Boleto = b.id_Boleto
+        JOIN programacion_peliculas pp ON b.id_Programacion = pp.id_Programacion
+        JOIN salas s ON pp.id_Sala = s.Id_Sala
+        JOIN detalle_factura_productos dfp ON f.id_Factura = dfp.id_Factura
+        WHERE s.Id_Cine = c.Id_Cine
+    ) AS [Recaudacion Total],
+
+ 
+    (
+        SELECT 
+         SUM(df.precio_total) 
+        FROM detalle_factura df
+        JOIN boletos b ON df.id_Boleto = b.id_Boleto
+        JOIN programacion_peliculas pp ON b.id_Programacion = pp.id_Programacion
+        JOIN salas s ON pp.id_Sala = s.Id_Sala
+        WHERE s.Id_Cine = c.Id_Cine
+    ) AS [Recaudacion Peliculas],
+
+
+    (
+        SELECT 
+        SUM(dfp.cantidad * dfp.Precio_Unitario) 
+        FROM detalle_factura_productos dfp
+        JOIN factura f ON dfp.id_Factura = f.id_Factura
+        JOIN detalle_factura df ON f.id_Factura = df.id_Factura
+        JOIN boletos b ON df.id_Boleto = b.id_Boleto
+        JOIN programacion_peliculas pp ON b.id_Programacion = pp.id_Programacion
+        JOIN salas s ON pp.id_Sala = s.Id_Sala
+        WHERE s.Id_Cine = c.Id_Cine
+    ) AS [Recaudacion Productos],
+
+
+    (
+        SELECT TOP 1 p.Titulo
+        FROM detalle_factura df
+        JOIN boletos b ON df.id_Boleto = b.id_Boleto
+        JOIN programacion_peliculas pp ON b.id_Programacion = pp.id_Programacion
+        JOIN peliculas p ON pp.id_Pelicula = p.id_Pelicula
+        JOIN salas s ON pp.id_Sala = s.Id_Sala
+        WHERE s.Id_Cine = c.Id_Cine
+        GROUP BY p.Titulo
+        ORDER BY COUNT(df.id_Boleto) DESC
+    ) AS [Pelicula mas vista],
+
+
+    (
+        SELECT TOP 1 pr.Descripcion
+        FROM detalle_factura_productos dfp
+        JOIN productos pr ON dfp.id_Producto = pr.id_Producto
+        JOIN factura f ON dfp.id_Factura = f.id_Factura
+        JOIN detalle_factura df ON f.id_Factura = df.id_Factura
+        JOIN boletos b ON df.id_Boleto = b.id_Boleto
+        JOIN programacion_peliculas pp ON b.id_Programacion = pp.id_Programacion
+        JOIN salas s ON pp.id_Sala = s.Id_Sala
+        WHERE s.Id_Cine = c.Id_Cine
+        GROUP BY pr.Descripcion
+        ORDER BY SUM(dfp.cantidad) DESC
+    ) AS [Producto mas vendido]
+
+FROM cines c
+JOIN barrios b ON c.Id_Barrio = b.Id_Barrio
+JOIN ciudades ci ON b.Id_Ciudad = ci.Id_Ciudad
+ORDER BY [Recaudacion Total] DESC;</pre>
             <button class="btn-ejecutar" data-img="imagen4.jpg">EJECUTAR</button>
             <div class="resultado"></div>
         </div>
@@ -215,7 +285,7 @@ GROUP BY Pelicula;</pre>
         <div class="consulta">
             <h3>Consulta 5</h3>
             <button class="btn-enunciado">Mostrar Enunciado</button>
-            <p class="enunciado hidden">Permite detectar a los clientes más frecuentes, apoyando estrategias de fidelización y beneficios personalizados para el público.</p>
+            <p class="enunciado hidden"></p>
            <br> </br>
             <pre>SELECT 
     Cliente,
@@ -226,6 +296,49 @@ ORDER BY Visitas DESC;</pre>
             <button class="btn-ejecutar" data-img="imagen5.jpg">EJECUTAR</button>
             <div class="resultado"></div>
         </div>
+    </section>
+
+    <section id="porque-elegirnos" class="hidden">
+        <h1>¿Por qué elegir Cine DB?</h1>
+        <p class="intro-text">
+            En la industria del cine, cada entrada vendida, cada butaca ocupada y cada película proyectada es un dato valioso.
+            Se requiere una <strong>gestión inteligente</strong>. Y ahí es donde entra nuestra base de datos.
+        </p>
+        
+        <ul class="features">
+            <li>
+                <h3> Reglas de Negocio Real</h3>
+                 <p>
+                No se trata solo de guardar datos, sino de entenderlos.  
+                Con Cine DB podés analizar resultados al instante: 
+                descubrir cuál película deja más ganancias (<strong>Consulta 1</strong>), 
+                o reconocer a tus clientes más fieles (<strong>Consulta 2</strong>).                  
+            </p>
+            </li>
+
+            <li>
+                <h3>Escalabilidad y Flexibilidad</h3>
+                <p>
+                   Cine DB está pensada para crecer sin perder el orden.  
+                   Su estructura permite agregar nuevas películas, salas o funciones de forma simple,  
+                   sin necesidad de modificar la base ni romper relaciones.  
+                   La coherencia entre los datos se mantiene, asegurando que todo encaje incluso cuando el sistema se amplía.  
+                   Si mañana el cine suma más sucursales o nuevos formatos, la base ya está preparada.
+            </li>
+            <li>
+                <h3> Decisiones Basadas en Datos</h3>
+             <p>
+        Para nosotros, gestionar un cine no debería depender de la intuición.  
+        Cada decisión puede basarse en datos reales:  
+        Ver qué cine recauda más, cuál película lidera las Ventas
+        y qué producto es el más vendido (<strong>Consulta 4</strong>).  
+        Todo está ahí, listo para convertir datos en información y luego en <strong>estrategia.</strong>
+             </p>
+            </li>
+        </ul>
+        <p class="intro-text" style="font-weight: 700; margin-top: 30px;">
+            Cine DB no es solo una base de datos. Es su socio estratégico
+        </p>
     </section>
 
 

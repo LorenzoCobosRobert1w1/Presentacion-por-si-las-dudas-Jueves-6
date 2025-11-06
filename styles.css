@@ -31,6 +31,7 @@ header {
 header .logo {
     font-size: 1.4rem;
     font-weight: 600;
+     font-family: 'Cinzel', serif;
 }
 
 nav ul {
@@ -44,6 +45,7 @@ nav a {
     color: white;
     font-weight: 500;
     transition: color 0.3s ease;
+    font-family: 'Cinzel', serif;
 }
 
 nav a:hover {
@@ -69,6 +71,7 @@ section {
     margin-bottom: 30px;
     font-size: 2rem;
     color: #001f3f;
+    font-family: 'Cinzel', serif;
 }
 
 /* CARDS */
@@ -86,6 +89,18 @@ section {
     padding: 20px;
     width: 180px;
     transition: transform 0.3s ease;
+}
+
+.card h3, .card p {
+    font-family: 'Cinzel', serif;
+}
+
+#sobre-nosotros h1 {
+    font-family: 'Cinzel', serif;
+}
+
+#consultas h1 {
+   font-family: 'Cinzel', serif;
 }
 
 .card:hover {
@@ -228,3 +243,51 @@ section {
     transform: translateY(0);
 }
 
+/* ESTILOS PARA LA NUEVA SECCIÓN */
+#porque-elegirnos {
+    text-align: left;
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #ffffff; /* Un fondo limpio para destacar */
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+#porque-elegirnos h1 {
+    font-family: 'Cinzel', serif;
+    color: #001f3f;
+    text-align: center;
+}
+
+#porque-elegirnos .intro-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    text-align: center;
+    color: #333;
+}
+
+#porque-elegirnos .features {
+    list-style: none;
+    padding: 0;
+}
+
+#porque-elegirnos .features li {
+    background-color: #f9f9f9;
+    border-left: 5px solid #0a0303;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 0 8px 8px 0;
+    box-shadow: #000000 2px 2px 5px rgba(0,0,0,0.05);
+}
+
+#porque-elegirnos .features h3 {
+    color: #001f3f;
+    margin-bottom: 10px;
+    font-size: 1.3rem;
+}
+
+#porque-elegirnos .features p {
+    line-height: 1.7;
+    color: #444;
+}

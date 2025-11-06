@@ -7,6 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const botonesEnunciado = document.querySelectorAll(".btn-enunciado");
     const themeToggle = document.getElementById("themeToggle");
     const consultas = document.querySelectorAll(".consulta");
+    const btnPorque = document.getElementById("btnPorque");
+    const seccionPorque = document.getElementById("porque-elegirnos");
     function highlightSQL() {
         const keywords = /\b(SELECT|INSERT|UPDATE|DELETE|FROM|WHERE|GROUP BY|HAVING|ORDER BY|JOIN|ON|AS|AND|OR|IN|BETWEEN|LIKE|IS|NULL|CREATE|VIEW|PROCEDURE|BEGIN|END|EXEC|UNION|DISTINCT|COUNT|SUM|AVG|MIN|MAX|PRINT|RETURN|IF|ELSE|CONCAT|REPLACE|YEAR|DATEADD|GETDATE)\b/gi;
         const types = /\b(VARCHAR|INT|DECIMAL|DATE|DATETIME|OUTPUT)\b/gi;
@@ -27,16 +29,28 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+   // LISTENERS ACTUALIZADOS
     btnNosotros.addEventListener("click", () => {
         seccionNosotros.classList.remove("hidden");
         seccionConsultas.classList.add("hidden");
+        seccionPorque.classList.add("hidden"); // AÑADIDO
     });
 
     btnConsultas.addEventListener("click", () => {
         seccionNosotros.classList.add("hidden");
         seccionConsultas.classList.remove("hidden");
+        seccionPorque.classList.add("hidden"); // AÑADIDO
         window.scrollTo({ top: 0, behavior: "smooth" });
     });
+
+    // NUEVO LISTENER
+    btnPorque.addEventListener("click", () => {
+        seccionNosotros.classList.add("hidden");
+        seccionConsultas.classList.add("hidden");
+        seccionPorque.classList.remove("hidden"); // AÑADIDO
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
     botonesEnunciado.forEach(boton => {
         boton.addEventListener("click", () => {
             const enunciado = boton.nextElementSibling;
