@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cine DB - Presentación</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body>
+    <header>
+        <div class="logo"> Cine DB</div>
+        <nav>
+            <ul>
+                <li><a href="#" id="btnNosotros">Sobre Nosotros</a></li>
+                <li><a href="#" id="btnConsultas">Consultas</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section id="sobre-nosotros">
+        <h1>Sobre Nosotros</h1>
+        <div class="cards">
+            <div class="card"><h3>Cobos Robert , Lorenzo </h3><p>Legajo: 421527 </p></div>
+            <div class="card"><h3>Cantero, Ignacio Javier</h3><p>Legajo: 421797 </p></div>
+            <div class="card"><h3>Bonfanti, Galo</h3><p>Legajo: 421253 </p></div>
+            <div class="card"><h3>Aris, Federico Nicolas</h3><p>Legajo: 421442 </p></div>
+            <div class="card"><h3>Iriarte, Franco Nicolas </h3><p>Legajo: 421708</p></div>
+        </div>
+    </section>
+
+    <section id="consultas" class="hidden">
+        <button id="themeToggle" class="theme-btn" title="Cambiar tema">
+            <i class="bi bi-moon-fill"></i>
+        </button>
+        <h1>Consultas SQL</h1>
+
+        <div class="consulta">
+            <h3>Consulta 1</h3>
+            <button class="btn-enunciado">Mostrar Enunciado</button>
+            <p class="enunciado hidden">Crear una vista que guarde una consulta que muestre desde 2015, el promedio de
+espectadores por función; la recaudación total por cine y por película; y la cantidad total de
+espectadores por película.
+ Consulte la vista anterior para mostrar el cine, la película y la recaudación total solo de
+aquellas películas cuya recaudación supere el promedio general de recaudación.</p>
+<br> </br>
+            <pre>CREATE VIEW vista_estadisticas_cine AS
+SELECT 
+    c.Nombre_Cine, 
+    p.Titulo AS Pelicula, 
+    COUNT(b.id_Boleto) * 1.0 / COUNT(DISTINCT pp.id_Programacion) AS PromedioEspectadoresPorFuncion,
+    SUM(df.precio_total) AS RecaudacionTotal,
+    COUNT(b.id_Boleto) AS TotalEspectadores
+FROM factura f
+JOIN detalle_factura df ON f.id_Factura = df.id_Factura
+JOIN boletos b ON df.id_Boleto = b.id_Boleto
+JOIN programacion_peliculas pp ON b.id_Programacion = pp.id_Programacion
+JOIN salas s ON pp.id_Sala = s.Id_Sala
+JOIN cines c ON s.Id_Cine = c.Id_Cine
+JOIN peliculas p ON pp.id_Pelicula = p.id_Pelicula
+WHERE YEAR(pp.Fecha) >= 2015
+GROUP BY c.Nombre_Cine, p.Titulo;
+
+SELECT Nombre_Cine, Pelicula, RecaudacionTotal
+FROM vista_estadisticas_cine
+WHERE RecaudacionTotal > (
+    SELECT AVG(RecaudacionTotal)
+    FROM vista_estadisticas_cine
+)
+ORDER BY RecaudacionTotal DESC;</pre>
+            <button class="btn-ejecutar" data-img="imagen1.jpg">EJECUTAR</button>
+       
+            <div class="resultado"></div>
+        </div>
+
+        <div class="consulta">
+            <h3>Consulta 2</h3>
+<button class="btn-enunciado">Mostrar Enunciado</button>
+            <p class="enunciado hidden">1. Crear un procedimiento almacenado que permita clasificar a los clientes del cine en
+dos categorías (“Premium” y “Estándar”) según el precio promedio de los boletos que compraron
+durante el último año.
+ Se considerará cliente “Premium” a aquel cuyo precio promedio por boleto supere el
+promedio general de precios de todos los boletos vendidos en ese período, y “Estándar” en caso
+contrario.
+ El procedimiento deberá mostrar el código y nombre del cliente, la cantidad total de
+boletos adquiridos, el monto total gastado, el precio promedio por boleto y el tipo de cliente
+asignado</p>
+<br> </br>
+            <pre>SELECT 
+    c.id_Cliente,
+    c.[Nom_Cliente],
+    COUNT(b.id_Boleto) AS Cantidad_Boletos,
+    SUM(df.precio_total) AS Total_Gastado,
+    AVG(b.precio_unitario) AS Promedio_Precio,
+    'Premium' AS Tipo_Cliente
+FROM clientes c
+JOIN factura f ON c.id_Cliente = f.id_Cliente
+JOIN detalle_factura df ON f.id_Factura = df.id_Factura
+JOIN boletos b ON df.id_Boleto = b.id_Boleto
+WHERE f.Fecha_Factura >= DATEADD(YEAR, -1, GETDATE())
+GROUP BY c.id_Cliente, c.[Nom_Cliente]
+HAVING AVG(b.precio_unitario) >
+       (SELECT AVG(b2.precio_unitario)
+        FROM boletos b2
+        JOIN detalle_factura df2 ON b2.id_Boleto = df2.id_Boleto
+        JOIN factura f2 ON f2.id_Factura = df2.id_Factura
+        WHERE f2.Fecha_Factura >= DATEADD(YEAR, -1, GETDATE()))
+
+UNION
+
+
+SELECT 
+    c.id_Cliente,
+    c.[Nom_Cliente],
+    COUNT(b.id_Boleto) AS Cantidad_Boletos,
+    SUM(df.precio_total) AS Total_Gastado,
+    AVG(b.precio_unitario) AS Promedio_Precio,
+    'Estándar' AS Tipo_Cliente
+FROM clientes c
+JOIN factura f ON c.id_Cliente = f.id_Cliente
+JOIN detalle_factura df ON f.id_Factura = df.id_Factura
+JOIN boletos b ON df.id_Boleto = b.id_Boleto
+WHERE f.Fecha_Factura >= DATEADD(YEAR, -1, GETDATE())
+GROUP BY c.id_Cliente, c.[Nom_Cliente]
+HAVING AVG(b.precio_unitario) <=
+       (SELECT AVG(b2.precio_unitario)
+        FROM boletos b2
+        JOIN detalle_factura df2 ON b2.id_Boleto = df2.id_Boleto
+        JOIN factura f2 ON f2.id_Factura = df2.id_Factura
+        WHERE f2.Fecha_Factura >= DATEADD(YEAR, -1, GETDATE()));
+     </pre>
+            
+            <button class="btn-ejecutar" data-img="imagen2.jpg">EJECUTAR</button>
+            <div class="resultado"></div>
+        </div>
+
+        <div class="consulta">
+            <h3>Consulta 3</h3>
+            <button class="btn-enunciado">Mostrar Enunciado</button>
+            <p class="enunciado hidden">3. Crear un procedimiento almacenado que sea capaz de determinar la cantidad de
+películas de un género y un formato pasados por parámetros que fueron transmitidas entre los
+años 2023 y 2025 y que la duración sea mayor al promedio del total de las películas. En el caso de
+que solo haya una, especificar su título.</p>
+<br> </br>
+            <pre>CREATE PROCEDURE Pa_Pel_Gen_Form
+    @genero VARCHAR(50),
+    @formato VARCHAR(50),
+    @cantidadPeliculas INT = 0 OUTPUT,
+    @nombre VARCHAR(100) = NULL OUTPUT
+AS 
+BEGIN 
+    IF @genero IS NULL 
+    BEGIN 
+        PRINT('Debe ingresar un valor valido de genero');
+        RETURN;
+    END;
+
+    IF @formato IS NULL
+    BEGIN
+        PRINT('Debe ingresar un valor valido de formato');
+        RETURN;
+    END;
+
+    BEGIN
+        SELECT DISTINCT
+            @cantidadPeliculas = COUNT(p.id_Pelicula),
+            @nombre = p.titulo
+        FROM peliculas AS p
+        JOIN genero_peliculas AS gp ON gp.id_Pelicula = p.id_Pelicula
+        JOIN generos AS g ON gp.id_Genero = g.id_Genero
+        JOIN programacion_peliculas AS pp ON pp.id_Pelicula = p.id_Pelicula
+        JOIN formato_pelicula AS fp ON fp.id_Formato_Pelicula = pp.id_Formato_Pelicula
+        WHERE YEAR(pp.Fecha) BETWEEN 2023 AND 2025
+            AND fp.Formato = @formato
+            AND g.Genero = @genero
+        GROUP BY p.Titulo, p.Duracion
+        HAVING p.Duracion > (
+            SELECT AVG(duracion)
+            FROM peliculas
+        );
+    END;
+
+    BEGIN
+        IF @cantidadPeliculas = 0
+            PRINT('No hay ninguna pelicula que cumpla la condicion con ese genero y formato');
+        ELSE IF @cantidadPeliculas = 1
+            PRINT(CONCAT('Solo una pelicula cumple con la condicion y su titulo es: ', @nombre));
+        ELSE
+            PRINT(CONCAT('La cantidad de peliculas que cumplen con la condicion son: ', 
+                  REPLACE(STR(@cantidadPeliculas), ' ', '')));
+    END;
+END;
+
+EXEC Pa_Pel_Gen_Form 'romance', '2D';</pre>
+            <button class="btn-ejecutar" data-img="imagen3.jpg">EJECUTAR</button>
+            <div class="resultado"></div>
+        </div>
+
+        <div class="consulta">
+            <h3>Consulta 4</h3>
+            <button class="btn-enunciado">Mostrar Enunciado</button>
+            <p class="enunciado hidden">Nos muestra la recaudación por película, facilitando el análisis económico y la identificación de títulos más rentables.</p>
+          <br> </br>
+  <pre>SELECT 
+    Pelicula,
+    SUM(Recaudacion) as RecaudacionTotal
+FROM Ventas 
+GROUP BY Pelicula;</pre>
+            <button class="btn-ejecutar" data-img="imagen4.jpg">EJECUTAR</button>
+            <div class="resultado"></div>
+        </div>
+
+        <div class="consulta">
+            <h3>Consulta 5</h3>
+            <button class="btn-enunciado">Mostrar Enunciado</button>
+            <p class="enunciado hidden">Permite detectar a los clientes más frecuentes, apoyando estrategias de fidelización y beneficios personalizados para el público.</p>
+           <br> </br>
+            <pre>SELECT 
+    Cliente,
+    COUNT(*) AS Visitas 
+FROM Ventas 
+GROUP BY Cliente 
+ORDER BY Visitas DESC;</pre>
+            <button class="btn-ejecutar" data-img="imagen5.jpg">EJECUTAR</button>
+            <div class="resultado"></div>
+        </div>
+    </section>
+
+
+    <script src="index.js"></script>
+</body>
+</html>
