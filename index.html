@@ -211,8 +211,7 @@ EXEC Pa_Pel_Gen_Form 'romance', '2D';</pre>
 
     (
         SELECT 
-        SUM(df.precio_total) + SUM(dfp.cantidad * dfp.Precio_Unitario)
-		-- El cine de las rosas no tiene recaudacion de productos, por lo tanto, 5500 + null = null, lo arreglamos despues con algun insert 
+        ISNULL(SUM(df.precio_total), 0) + ISNULL(SUM(dfp.cantidad * dfp.Precio_Unitario), 0) 
         FROM factura f
         JOIN detalle_factura df ON f.id_Factura = df.id_Factura
         JOIN boletos b ON df.id_Boleto = b.id_Boleto
