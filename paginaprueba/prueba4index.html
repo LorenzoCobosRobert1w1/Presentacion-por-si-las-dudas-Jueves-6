@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estadísticas de Cines - Vista y Filtro</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #e9ecef;
+      font-family: 'Segoe UI', sans-serif;
+      color: #333;
+    }
+
+    header {
+      background: #3b475f;
+      color: #fff;
+      text-align: center;
+      padding: 25px 0;
+      font-size: 1.7rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .container {
+      background: #fff;
+      margin-top: 40px;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    table {
+      margin-top: 25px;
+      border: 1px solid #dee2e6;
+    }
+
+    th {
+      background-color: #f1f3f5 !important;
+      font-weight: 600;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .btn-custom {
+      background-color: #495867;
+      color: white;
+      border: none;
+    }
+
+    .btn-custom:hover {
+      background-color: #33404f;
+    }
+
+    .mensaje {
+      text-align: center;
+      font-weight: 500;
+      margin-top: 10px;
+      color: #333;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      color: #666;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    Sistema de Estadísticas de Cines Argentinos
+  </header>
+
+  <div class="container">
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="mostrarVistaCompleta()">Mostrar Vista Completa</button>
+      <button class="btn btn-custom" onclick="aplicarFiltro()">Filtrar por Recaudación Promedio</button>
+    </div>
+
+    <div id="resultado"></div>
+  </div>
+
+  <footer>
+     vista <strong>vista_estadisticas_cine</strong> — período 2015–Actualidad
+  </footer>
+
+  <script>
+    // Datos simulados basados en cines y películas reales
+    const vistaEstadisticas = [
+      { cine: 'Cinemark Palermo', pelicula: 'Oppenheimer', promedioEspectadores: 120, recaudacionTotal: 450000, totalEspectadores: 3400 },
+      { cine: 'Hoyts Abasto', pelicula: 'Barbie', promedioEspectadores: 140, recaudacionTotal: 530000, totalEspectadores: 4100 },
+      { cine: 'Cinépolis Recoleta', pelicula: 'Dune: Parte Dos', promedioEspectadores: 115, recaudacionTotal: 395000, totalEspectadores: 3000 },
+      { cine: 'Atlas Caballito', pelicula: 'Wonka', promedioEspectadores: 90, recaudacionTotal: 220000, totalEspectadores: 1800 },
+      { cine: 'Showcase Córdoba', pelicula: 'Deadpool & Wolverine', promedioEspectadores: 150, recaudacionTotal: 580000, totalEspectadores: 4600 },
+      { cine: 'Hoyts Patio Olmos', pelicula: 'Inside Out 2', promedioEspectadores: 130, recaudacionTotal: 510000, totalEspectadores: 3900 },
+      { cine: 'Cinépolis Rosario', pelicula: 'Napoleón', promedioEspectadores: 85, recaudacionTotal: 180000, totalEspectadores: 1500 },
+    ];
+
+    const promedioRecaudacion = vistaEstadisticas.reduce((a, b) => a + b.recaudacionTotal, 0) / vistaEstadisticas.length;
+
+    function mostrarVistaCompleta() {
+      renderTabla(vistaEstadisticas, `Vista completa desde 2015 (Promedio general de recaudación: $${promedioRecaudacion.toFixed(0)})`);
+    }
+
+    function aplicarFiltro() {
+      const filtradas = vistaEstadisticas.filter(p => p.recaudacionTotal > promedioRecaudacion);
+      renderTabla(filtradas, `Películas con recaudación superior al promedio ($${promedioRecaudacion.toFixed(0)})`);
+    }
+
+    function renderTabla(datos, mensaje) {
+      const resultadoDiv = document.getElementById('resultado');
+      if (datos.length === 0) {
+        resultadoDiv.innerHTML = `<p class="mensaje text-danger">No hay registros que cumplan la condición.</p>`;
+        return;
+      }
+
+      let tabla = `
+        <p class="mensaje">${mensaje}</p>
+        <table class="table table-bordered table-striped align-middle text-center">
+          <thead>
+            <tr>
+              <th>Cine</th>
+              <th>Película</th>
+              <th>Promedio Espectadores/Función</th>
+              <th>Recaudación Total ($)</th>
+              <th>Total Espectadores</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+      datos.forEach(f => {
+        tabla += `
+          <tr>
+            <td>${f.cine}</td>
+            <td>${f.pelicula}</td>
+            <td>${f.promedioEspectadores}</td>
+            <td>${f.recaudacionTotal.toLocaleString()}</td>
+            <td>${f.totalEspectadores}</td>
+          </tr>`;
+      });
+      tabla += `</tbody></table>`;
+      resultadoDiv.innerHTML = tabla;
+    }
+  </script>
+</body>
+</html>

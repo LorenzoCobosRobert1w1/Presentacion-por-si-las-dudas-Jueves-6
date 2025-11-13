@@ -201,7 +201,7 @@ section {
     color: #9CDCFE;
 }
 
-.btn-enunciado, .btn-ejecutar, .btn-invoice {
+.btn-enunciado, .btn-ejecutar, .btn-invoice, .btn-mostrar {
     background-color: #001f3f;
     color: white;
     padding: 10px 20px;
@@ -212,6 +212,8 @@ section {
     cursor: pointer;
     transition: background 0.3s;
 }
+
+
 
 .btn-enunciado:hover, .btn-ejecutar:hover {
     background-color: #00b8ff;

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Películas por Género y Formato</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    h1 {
+      text-align: center;
+      color: #0d6efd;
+      margin: 30px 0;
+    }
+    table {
+      background-color: white;
+    }
+    .mensaje {
+      text-align: center;
+      margin-top: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+    pre {
+      background-color: #f1f1f1;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Cartelera</h1>
+
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        Parámetros de consulta
+      </div>
+      <div class="card-body">
+        <!-- Formulario -->
+        <div class="row mb-3">
+          <div class="col-md-5">
+            <label for="genero" class="form-label">Género:</label>
+            <input type="text" id="genero" class="form-control" placeholder="Ej: romance">
+          </div>
+          <div class="col-md-5">
+            <label for="formato" class="form-label">Formato:</label>
+            <input type="text" id="formato" class="form-control" placeholder="Ej: 2D">
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-success w-100" onclick="simularConsulta()">Consultar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Resultados -->
+    <div id="resultado" class="mt-4"></div>
+  </div>
+
+  <script>
+    function simularConsulta() {
+      const genero = document.getElementById('genero').value.trim().toLowerCase();
+      const formato = document.getElementById('formato').value.trim().toLowerCase();
+      const resultadoDiv = document.getElementById('resultado');
+
+      // Limpiar resultados anteriores
+      resultadoDiv.innerHTML = '';
+
+      if (!genero || !formato) {
+        resultadoDiv.innerHTML = `<div class="alert alert-danger">Debe ingresar un valor válido de género y formato.</div>`;
+        return;
+      }
+
+      // Mostrar spinner de "consultando base de datos"
+      resultadoDiv.innerHTML = `
+        <div class="text-center text-secondary">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="mt-2">Consultando base de datos...</p>
+        </div>
+      `;
+
+      // Simular un pequeño retraso como si estuviera consultando el servidor
+      setTimeout(() => {
+        // Datos simulados
+        const peliculasSimuladas = [
+          { titulo: 'El Último Verano', genero: 'romance', formato: '2d', anio: 2023, duracion: 125 },
+          { titulo: 'Besos en París', genero: 'romance', formato: '2d', anio: 2024, duracion: 140 },
+          { titulo: 'Amor y Destino', genero: 'romance', formato: '2d', anio: 2025, duracion: 150 },
+          { titulo: 'Carrera Final', genero: 'accion', formato: '3d', anio: 2024, duracion: 160 },
+        ];
+
+        const promedioDuracion = 120; // Valor simulado
+        const filtradas = peliculasSimuladas.filter(p =>
+          p.genero === genero &&
+          p.formato === formato &&
+          p.duracion > promedioDuracion &&
+          p.anio >= 2023 && p.anio <= 2025
+        );
+
+        // Mostrar el "SQL ejecutado"
+        let html = `
+          <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+              Ejecución del Procedimiento
+            </div>
+            <div class="card-body">
+              <pre>EXEC Pa_Pel_Gen_Form '${genero}', '${formato}'</pre>
+        `;
+
+        // Mostrar resultados
+        if (filtradas.length === 0) {
+          html += `<div class="alert alert-danger mt-3">No hay ninguna película que cumpla la condición con ese género y formato.</div>`;
+        } else if (filtradas.length === 1) {
+          html += `<div class="alert alert-success mt-3">Solo una película cumple con la condición: <strong>${filtradas[0].titulo}</strong></div>`;
+        } else {
+          html += `
+            <table class="table table-bordered table-striped mt-3">
+              <thead class="table-primary">
+                <tr>
+                  <th>Título</th><th>Género</th><th>Formato</th><th>Año</th><th>Duración (min)</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+          filtradas.forEach(p => {
+            html += `
+              <tr>
+                <td>${p.titulo}</td>
+                <td>${p.genero}</td>
+                <td>${p.formato.toUpperCase()}</td>
+                <td>${p.anio}</td>
+                <td>${p.duracion}</td>
+              </tr>
+            `;
+          });
+          html += `
+              </tbody>
+            </table>
+            <div class="alert alert-info mt-3">
+              <strong>Duración promedio general:</strong> ${promedioDuracion} min<br>
+              <strong>Cantidad de películas que cumplen la condición:</strong> ${filtradas.length}
+            </div>
+          `;
+        }
+
+        html += `</div></div>`;
+        resultadoDiv.innerHTML = html;
+
+      }, 1000); // 1 segundo de espera
+    }
+  </script>
+</body>
+</html>

@@ -72,6 +72,7 @@ WHERE RecaudacionTotal > (
     FROM vista_estadisticas_cine
 )
 ORDER BY RecaudacionTotal DESC;</pre>
+            <button class="btn-mostrar" onclick="window.open('paginaprueba/prueba4index.html', '_blank')"> PRUEBA </button>
             <button class="btn-ejecutar" data-img="imagen1.jpg">EJECUTAR</button>
        
             <div class="resultado"></div>
@@ -133,7 +134,7 @@ HAVING AVG(b.precio_unitario) <=
         JOIN factura f2 ON f2.id_Factura = df2.id_Factura
         WHERE f2.Fecha_Factura >= DATEADD(YEAR, -1, GETDATE()));
      </pre>
-            
+             <button class="btn-mostrar" onclick="window.open('paginaprueba/prueba1index.html', '_blank')"> PRUEBA </button>
             <button class="btn-ejecutar" data-img="imagen2.jpg">EJECUTAR</button>
             <div class="resultado"></div>
         </div>
@@ -196,6 +197,7 @@ BEGIN
 END;
 
 EXEC Pa_Pel_Gen_Form 'romance', '2D';</pre>
+            <button class="btn-mostrar" onclick="window.open('paginaprueba/paginaprueb2index.html', '_blank')"> PRUEBA </button>
             <button class="btn-ejecutar" data-img="imagen3.jpg">EJECUTAR</button>
             <div class="resultado"></div>
         </div>
@@ -277,7 +279,9 @@ FROM cines c
 JOIN barrios b ON c.Id_Barrio = b.Id_Barrio
 JOIN ciudades ci ON b.Id_Ciudad = ci.Id_Ciudad
 ORDER BY [Recaudacion Total] DESC;</pre>
+           <button class="btn-mostrar" onclick="window.open('paginaprueba/pruebaindex.html', '_blank')"> PRUEBA </button>
             <button class="btn-ejecutar" data-img="imagen4.jpg">EJECUTAR</button>
+
             <div class="resultado"></div>
         </div>
 
@@ -312,21 +316,10 @@ BEGIN
 END;</pre>
 
             <div class="invoice-menu">
-                <div class="stock-display">Stock de pochoclos: <span id="stock-pochoclos">20</span></div>
-                <label for="cantidad-pochoclos">Cantidad a vender:</label>
-                <input type="number" id="cantidad-pochoclos" min="1" value="1">
-                <button id="add-to-invoice" class="btn-invoice">Agregar a factura</button>
-                <button id="finalize-invoice" class="btn-invoice">Finalizar factura</button>
-
-                <div id="invoice-area">
-                    <h4>Factura (items)</h4>
-                    <ul id="invoice-list"></ul>
-                </div>
-
-                <div id="error-box" class="error-message hidden"></div>
+            <button class="btn-mostrar" onclick="window.open('paginaprueba/paginatrigger.html', '_blank')"> PRUEBA </button>
             </div>
 
-            <div class="resultado"></div>
+           
         </div>
     </section>
 

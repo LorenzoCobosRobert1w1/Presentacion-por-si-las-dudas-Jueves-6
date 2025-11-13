@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recaudación de Cines - Demostración</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background-color: #121212;
+      color: #f8f9fa;
+       font-family: 'Exo 2', sans-serif;
+    }
+  h1 {
+  font-family: 'Exo 2', sans-serif;
+  text-align: center;
+  margin: 30px 0;
+  color: #4D179A;
+  text-shadow: 
+    0 0 5px rgba(77, 23, 154, 0.6),
+    0 0 10px rgba(77, 23, 154, 0.4),
+    0 0 20px rgba(77, 23, 154, 0.2);
+}
+
+    .card {
+      background-color: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.05);
+      margin-bottom: 20px;
+    }
+    table {
+      color: #fff;
+    }
+    th {
+      background-color: #272525 !important;
+    }
+    h4 {
+        font-family: 'Exo 2', sans-serif;
+      color: #ffffff;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    canvas {
+      max-height: 500px;
+    }
+    /* 🔹 Estilo galería de películas */
+    .peliculas-destacadas {
+        font-family: 'Exo 2', sans-serif;
+      margin-top: 50px;
+    }
+    .peliculas-destacadas h2 {
+        font-family: 'Exo 2', sans-serif;
+      text-align: center;
+      color: #4D179A;
+      margin-bottom: 30px;
+    }
+    .galeria {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+    }
+    .pelicula {
+      background-color: #1e1e1e;
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .pelicula:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 15px rgba(255,255,255,0.1);
+    }
+    .pelicula img {
+      width: 100%;
+      height: 350px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .pelicula h5 {
+      color: #ffffff;
+      margin-bottom: 5px;
+    }
+    .pelicula p {
+      color: #ccc;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Recaudación de Cines</h1>
+
+    <!-- Tabla -->
+    <div class="card p-4 mb-4">
+      <table class="table table-dark table-striped table-hover text-center align-middle">
+        <thead>
+          <tr>
+            <th>Cine</th>
+            <th>Ubicación</th>
+            <th>Recaudación Total</th>
+            <th>Recaudación Películas</th>
+            <th>Recaudación Productos</th>
+            <th>Película más vista</th>
+            <th>Producto más vendido</th>
+          </tr>
+        </thead>
+        <tbody id="tabla-cines"></tbody>
+      </table>
+    </div>
+
+    <!-- Gráficos -->
+    <div class="card p-4">
+      <h4>Recaudación Total por Cine</h4>
+      <canvas id="graficoTotal"></canvas>
+    </div>
+
+    <div class="card p-4">
+      <h4>Recaudación de Películas por Cine</h4>
+      <canvas id="graficoPeliculas"></canvas>
+    </div>
+
+    <div class="card p-4">
+      <h4>Recaudación de Productos por Cine</h4>
+      <canvas id="graficoProductos"></canvas>
+    </div>
+
+    <div class="card p-4">
+      <h4>Recaudación Total por Ciudad</h4>
+      <canvas id="graficoCiudades"></canvas>
+    </div>
+
+    <div class="card p-4">
+      <h4>Comparativa Películas vs Productos</h4>
+      <canvas id="graficoComparativo"></canvas>
+    </div>
+
+    <!-- 🔹 Sección de películas más vistas -->
+    <section class="peliculas-destacadas">
+      <h2>Películas más vistas por cine</h2>
+      <div class="galeria">
+        <div class="pelicula">
+          <img src="img/blancanieves.jpg" alt="Blancanieves y los 9 enanitos">
+          <h5>El Buen Cine de Tolosa</h5>
+          <p>Blancanieves y los 9 enanitos</p>
+        </div>
+        <div class="pelicula">
+          <img src="img/lalaland.jpg" alt="La La Land: ciudad de sueños">
+          <h5>El Buen Cine de Güemes</h5>
+          <p>La La Land: ciudad de sueños</p>
+        </div>
+        <div class="pelicula">
+          <img src="img/scarface.jpg" alt="Scarface">
+          <h5>El Buen Cine del Casco Urbano</h5>
+          <p>Scarface</p>
+        </div>
+        <div class="pelicula">
+          <img src="img/vengadores.jpg" alt="Los Vengadores">
+          <h5>El Buen Cine de las Rosas</h5>
+          <p>Los Vengadores</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const cines = [
+      { cine: "El Buen Cine de Tolosa", ubicacion: "La Plata", total: 174200, peliculas: 72800, productos: 61000, pelicula: "Blancanieves y los 9 enanitos", producto: "Pochoclo Grande" },
+      { cine: "El Buen Cine de Güemes", ubicacion: "Córdoba Capital", total: 35000, peliculas: 5500, productos: 24000, pelicula: "La La Land: ciudad de sueños", producto: "Remera de la mascota del Buen Cine" },
+      { cine: "El Buen Cine del Casco Urbano", ubicacion: "La Plata", total: 31200, peliculas: 15200, productos: 16000, pelicula: "Scarface", producto: "Pochoclo Grande" },
+      { cine: "El Buen Cine de las Rosas", ubicacion: "Córdoba Capital", total: 27000, peliculas: 5500, productos: 16000, pelicula: "Los Vengadores", producto: "Pochoclo Grande" },
+    ];
+
+    const tbody = document.getElementById("tabla-cines");
+    cines.forEach(c => {
+      const fila = `
+        <tr>
+          <td>${c.cine}</td>
+          <td>${c.ubicacion}</td>
+          <td>$${c.total.toLocaleString()}</td>
+          <td>$${c.peliculas.toLocaleString()}</td>
+          <td>$${c.productos.toLocaleString()}</td>
+          <td>${c.pelicula}</td>
+          <td>${c.producto}</td>
+        </tr>
+      `;
+      tbody.innerHTML += fila;
+    });
+
+    function crearGrafico(id, tipo, etiquetas, datos, colores, titulo) {
+      const ctx = document.getElementById(id).getContext("2d");
+      new Chart(ctx, {
+        type: tipo,
+        data: {
+          labels: etiquetas,
+          datasets: [{
+            label: titulo,
+            data: datos,
+            backgroundColor: colores,
+            borderColor: "#222",
+            borderWidth: 1
+          }]
+        },
+        options: {
+          plugins: { legend: { labels: { color: "#fff" } } },
+          scales: {
+            y: { beginAtZero: true, ticks: { color: "#fff" } },
+            x: { ticks: { color: "#fff" } }
+          }
+        }
+      });
+    }
+
+    const colores1 = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"];
+    const colores2 = ["#9966FF", "#FF9F40", "#C9CBCF", "#FF6384"];
+    const colores3 = ["#36A2EB", "#FF6384", "#4BC0C0", "#9966FF"];
+
+    crearGrafico("graficoTotal", "bar", cines.map(c => c.cine), cines.map(c => c.total), colores1, "Recaudación Total");
+    crearGrafico("graficoPeliculas", "bar", cines.map(c => c.cine), cines.map(c => c.peliculas), colores2, "Recaudación Películas");
+    crearGrafico("graficoProductos", "bar", cines.map(c => c.cine), cines.map(c => c.productos), colores3, "Recaudación Productos");
+
+    const porCiudad = {};
+    cines.forEach(c => porCiudad[c.ubicacion] = (porCiudad[c.ubicacion] || 0) + c.total);
+    crearGrafico("graficoCiudades", "doughnut", Object.keys(porCiudad), Object.values(porCiudad), ["#FF6384", "#36A2EB", "#FFCE56"], "Recaudación por Ciudad");
+
+    const ctxComp = document.getElementById("graficoComparativo").getContext("2d");
+    new Chart(ctxComp, {
+      type: "bar",
+      data: {
+        labels: cines.map(c => c.cine),
+        datasets: [
+          { label: "Películas", data: cines.map(c => c.peliculas), backgroundColor: "#42A5F5" },
+          { label: "Productos", data: cines.map(c => c.productos), backgroundColor: "#FF7043" }
+        ]
+      },
+      options: {
+        plugins: { legend: { labels: { color: "#fff" } } },
+        scales: {
+          y: { beginAtZero: true, ticks: { color: "#fff" } },
+          x: { ticks: { color: "#fff" } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
